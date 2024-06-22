@@ -747,7 +747,7 @@ async function main() {
         // "nike.splat",
         // location.href,
         params.get("url") || "point_cloud.ply",
-        "https://huggingface.co/datasets/jungcow/splat-data/raw/main/",
+        "https://huggingface.co/datasets/jungcow/splat-data/resolve/main/",
     );
     const req = await fetch(url, {
         mode: "cors", // no-cors, *cors, same-origin
