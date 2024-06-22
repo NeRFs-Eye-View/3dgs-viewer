@@ -807,13 +807,13 @@ async function main() {
     // if (req.status != 200)
     //     throw new Error(req.status + " Unable to load " + req.url);
 
-    // const rowLength = 3 * 4 + 3 * 4 + 4 + 4;
-    const reader = req.body.getReader();
-    let splatData = new Uint8Array(req.headers.get("content-length"));
+    // // const rowLength = 3 * 4 + 3 * 4 + 4 + 4;
+    // const reader = req.body.getReader();
+    // let splatData = new Uint8Array(req.headers.get("content-length"));
 
-    const downsample =
-        splatData.length / rowLength > 500000 ? 1 : 1 / devicePixelRatio;
-    console.log(splatData.length / rowLength, downsample);
+    // const downsample =
+    //     splatData.length / rowLength > 500000 ? 1 : 1 / devicePixelRatio;
+    // console.log(splatData.length / rowLength, downsample);
 
     // const worker = new Worker(
     //     URL.createObjectURL(
@@ -837,6 +837,23 @@ async function main() {
         params.get("url") || "point_cloud.ply",
         "https://huggingface.co/jungcow/splat-data/resolve/main/",
     );
+
+    const req = await fetch(url, {
+        mode: "cors", // no-cors, *cors, same-origin
+        credentials: "omit", // include, *same-origin, omit
+    });
+    console.log(req);
+    if (req.status != 200)
+        throw new Error(req.status + " Unable to load " + req.url);
+
+    // const rowLength = 3 * 4 + 3 * 4 + 4 + 4;
+    const reader = req.body.getReader();
+    let splatData = new Uint8Array(req.headers.get("content-length"));
+
+    const downsample =
+        splatData.length / rowLength > 500000 ? 1 : 1 / devicePixelRatio;
+    console.log(splatData.length / rowLength, downsample);
+
 
     const worker = new Worker(
         URL.createObjectURL(
