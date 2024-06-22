@@ -853,7 +853,7 @@ async function main() {
     const rowLength = 3 * 4 + 3 * 4 + 4 + 4;
     let chunks = [];
     let textureReady = false;
-    let isPly = url.endsWith(".ply");
+    let isPly = url.toString().endsWith(".ply");
 
     fetchInChunks(url, (chunk) => {
         processChunk(chunk, chunks, worker, isPly, textureReady, rowLength, 0);
