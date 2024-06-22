@@ -835,7 +835,7 @@ async function main() {
     } catch (err) {}
     const url = new URL(
         params.get("url") || "point_cloud.ply",
-        "https://huggingface.co/jungcow/splat-data/resolve/main/",
+        "https://huggingface.co/datasets/jungcow/splat-data/resolve/main/",
     );
 
     const req = await fetch(url, {
