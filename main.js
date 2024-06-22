@@ -846,7 +846,7 @@ async function main() {
     if (req.status != 200)
         throw new Error(req.status + " Unable to load " + req.url);
 
-    // const rowLength = 3 * 4 + 3 * 4 + 4 + 4;
+    const rowLength = 3 * 4 + 3 * 4 + 4 + 4;
     const reader = req.body.getReader();
     let splatData = new Uint8Array(req.headers.get("content-length"));
 
@@ -867,7 +867,7 @@ async function main() {
     const fps = document.getElementById("fps");
     const camid = document.getElementById("camid");
 
-    const rowLength = 3 * 4 + 3 * 4 + 4 + 4;
+    // const rowLength = 3 * 4 + 3 * 4 + 4 + 4;
     let chunks = [];
     let textureReady = false;
     let isPly = url.toString().endsWith(".ply");
