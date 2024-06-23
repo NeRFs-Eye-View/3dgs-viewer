@@ -876,11 +876,11 @@ async function main() {
             const blob = new Blob([splatData.buffer], {
                 type: "application/octet-stream",
             });
-            const link = document.createElement("a");
-            link.download = "model.splat";
-            link.href = URL.createObjectURL(blob);
-            document.body.appendChild(link);
-            link.click();
+            // const link = document.createElement("a");
+            // link.download = "model.splat";
+            // link.href = URL.createObjectURL(blob);
+            // document.body.appendChild(link);
+            // link.click();
         } else if (e.data.texdata) {
             const { texdata, texwidth, texheight } = e.data;
             // console.log(texdata)
