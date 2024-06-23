@@ -1439,67 +1439,53 @@ async function main() {
 
 
     async function fetchAndDisplayProgress(url) {
+        if (window.isFetchingFile) {
+            console.log("File download is already in progress.");
+            return; // 이미 다운로드 중이면 추가 다운로드 방지
+        }
+        window.isFetchingFile = true; // 다운로드 진행 중 표시
+    
         document.getElementById("spinner").style.display = "block";
         document.getElementById("progressBar").style.display = "block";
-
-        // Fetch request 시작
-        const response = await fetch(url, {
-            mode: "cors",
-            credentials: "omit"
-        });
     
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        try {
+            const response = await fetch(url, { mode: "cors", credentials: "omit" });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     
-        // 컨텐츠의 총 크기를 헤더에서 가져오기
-        const contentLength = response.headers.get('Content-Length') || 0;
-        const total = parseInt(contentLength, 10);
-        let loaded = 0;
+            const contentLength = response.headers.get('Content-Length') || 0;
+            const total = parseInt(contentLength, 10);
+            let loaded = 0;
     
-        // 응답 스트림을 가져옴
-        const reader = response.body.getReader();
+            const reader = response.body.getReader();
+            let chunks = [];
+            let progressBar = document.getElementById("progressBar");
     
-        // 스트림을 처리할 temp 변수 설정
-        let chunks = []; // 데이터 청크를 저장할 배열
-        let lastLoggedPercentage = 0; // 마지막으로 로그된 진행율을 저장
-        let progressBar = document.getElementById("progressBar");
-
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
     
-        // 읽기 루프 시작
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-    
-            chunks.push(value);
-            loaded += value.length;
-    
-            // 진행 상황을 계산하고 로그로 출력
-            const currentPercentage = Math.floor((loaded / total) * 100);
-            if (currentPercentage >= lastLoggedPercentage + 1) { // 이전 로그된 진행율보다 1% 이상 증가했는지 확인
-                lastLoggedPercentage = currentPercentage; // 현재 진행율을 마지막 로그된 진행율로 업데이트
+                chunks.push(value);
+                loaded += value.length;
+                const currentPercentage = Math.floor((loaded / total) * 100);
+                progressBar.value = currentPercentage;
                 console.log(`Downloaded ${loaded} of ${total} bytes (${currentPercentage}%)`);
-
             }
-            progressBar.value = currentPercentage;  // 프로그레스 바 업데이트
-
-        }
     
-        // 모든 청크를 하나의 Uint8Array로 결합
-        let concatArray = new Uint8Array(loaded);
-        let position = 0;
-        for (let chunk of chunks) {
-            concatArray.set(chunk, position);
-            position += chunk.length;
-        }
+            const finalBlob = new Blob(chunks);
+            selectFile(finalBlob);
     
-        // 최종 데이터를 처리 (예: 파일 객체로 변환)
-        const finalBlob = new Blob([concatArray]);
-        progressBar.style.display = "none";  // 프로그레스 바 숨김
-        // 파일 처리 로직 수행
-        selectFile(finalBlob)
+            document.getElementById("spinner").style.display = "none";
+            document.getElementById("progressBar").style.display = "none";
+        } catch (error) {
+            console.error("Failed to fetch and process the file:", error);
+            document.getElementById("message").innerText = error.toString();
+            document.getElementById("spinner").style.display = "none";
+            document.getElementById("progressBar").style.display = "none";
+        } finally {
+            window.isFetchingFile = false; // 다운로드 종료
+        }
     }
-
+        
     console.log("fetch url: ", url)
     fetchAndDisplayProgress(url)
     
