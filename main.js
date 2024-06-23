@@ -472,6 +472,8 @@ function createWorker(self) {
     }
 
     function processPlyBuffer(inputBuffer) {
+        // 아래 {ply: splatData.buffer }의 정보가 worker.onMessage 콜백을 통해 여기로 들어옴
+        // inputBuffer로는 splatData.buffer가 들어오는 것임.
         const ubuf = new Uint8Array(inputBuffer);
         // 10KB ought to be enough for a header...
         const header = new TextDecoder().decode(ubuf.slice(0, 1024 * 10));
@@ -635,6 +637,7 @@ function createWorker(self) {
     let sortRunning;
     self.onmessage = (e) => {
         if (e.data.ply) {
+            // 아래 {ply: splatData.buffer } 의 데이터를 보낸 것을 여기서 처리.
             vertexCount = 0;
             runSort(viewProj);
             buffer = processPlyBuffer(e.data.ply);
@@ -644,6 +647,7 @@ function createWorker(self) {
             buffer = e.data.buffer;
             vertexCount = e.data.vertexCount;
         } else if (e.data.vertexCount) {
+            console.log("e.data.vertexCount: Who call it?")
             vertexCount = e.data.vertexCount;
         } else if (e.data.view) {
             viewProj = e.data.view;
@@ -747,7 +751,7 @@ async function main() {
         // "nike.splat",
         // location.href,
         params.get("url") || "train.splat",
-        "https://huggingface.co/cakewalk/splat-data/resolve/main/",
+        "https://huggingface.co/datasets/jungcow/splat-data/resolve/main/",
     );
     const req = await fetch(url, {
         mode: "cors", // no-cors, *cors, same-origin
@@ -1176,6 +1180,8 @@ async function main() {
 
     let leftGamepadTrigger, rightGamepadTrigger;
 
+    console.log("1184 LINE")
+
     const frame = (now) => {
         let inv = invert4(viewMatrix);
         let shiftKey = activeKeys.includes("Shift") || activeKeys.includes("ShiftLeft") || activeKeys.includes("ShiftRight")
@@ -1375,9 +1381,12 @@ async function main() {
             fr.readAsText(file);
         } else {
             stopLoading = true;
-            fr.onload = () => {
-                splatData = new Uint8Array(fr.result);
+            fr.onload = () => { 
+                // 아래 readAsArrayBuffer로 파일의 로딩을 완료하면 이 함수가 호출됨.
+                // fr.result 안에 읽힌 파일의 데이터가 ArrayBuffer 형태로 들어가있음.
+                splatData = new Uint8Array(fr.result); // ArrayBuffer를 byte단위로 접근 가능.
                 console.log("Loaded", Math.floor(splatData.length / rowLength));
+                console.log("Remain?: ", splatData.length)
 
                 if (
                     splatData[0] == 112 &&
@@ -1386,17 +1395,23 @@ async function main() {
                     splatData[3] == 10
                 ) {
                     // ply file magic header means it should be handled differently
+                    // ply file 처리 -> splatData.buffer에는 ArrayBuffer 정보가 들어있다. 
                     worker.postMessage({ ply: splatData.buffer });
+                    console.log("on load and ply files") 
                 } else {
+                    console.log("on load and not ply files -> this is .splat file")
                     worker.postMessage({
                         buffer: splatData.buffer,
                         vertexCount: Math.floor(splatData.length / rowLength),
                     });
                 }
             };
+            console.log("file is not json")
             fr.readAsArrayBuffer(file);
         }
     };
+
+    console.log("after selectFile()")
 
     window.addEventListener("hashchange", (e) => {
         try {
@@ -1422,26 +1437,74 @@ async function main() {
     let lastVertexCount = -1;
     let stopLoading = false;
 
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done || stopLoading) break;
 
-        splatData.set(value, bytesRead);
-        bytesRead += value.length;
+    async function fetchAndDisplayProgress(url) {
+        document.getElementById("spinner").style.display = "block";
+        document.getElementById("progressBar").style.display = "block";
 
-        if (vertexCount > lastVertexCount) {
-            worker.postMessage({
-                buffer: splatData.buffer,
-                vertexCount: Math.floor(bytesRead / rowLength),
-            });
-            lastVertexCount = vertexCount;
-        }
-    }
-    if (!stopLoading)
-        worker.postMessage({
-            buffer: splatData.buffer,
-            vertexCount: Math.floor(bytesRead / rowLength),
+        // Fetch request 시작
+        const response = await fetch(url, {
+            mode: "cors",
+            credentials: "omit"
         });
+    
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    
+        // 컨텐츠의 총 크기를 헤더에서 가져오기
+        const contentLength = response.headers.get('Content-Length') || 0;
+        const total = parseInt(contentLength, 10);
+        let loaded = 0;
+    
+        // 응답 스트림을 가져옴
+        const reader = response.body.getReader();
+    
+        // 스트림을 처리할 temp 변수 설정
+        let chunks = []; // 데이터 청크를 저장할 배열
+        let lastLoggedPercentage = 0; // 마지막으로 로그된 진행율을 저장
+        let progressBar = document.getElementById("progressBar");
+
+    
+        // 읽기 루프 시작
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+    
+            chunks.push(value);
+            loaded += value.length;
+    
+            // 진행 상황을 계산하고 로그로 출력
+            const currentPercentage = Math.floor((loaded / total) * 100);
+            if (currentPercentage >= lastLoggedPercentage + 1) { // 이전 로그된 진행율보다 1% 이상 증가했는지 확인
+                lastLoggedPercentage = currentPercentage; // 현재 진행율을 마지막 로그된 진행율로 업데이트
+                console.log(`Downloaded ${loaded} of ${total} bytes (${currentPercentage}%)`);
+
+            }
+            progressBar.value = currentPercentage;  // 프로그레스 바 업데이트
+
+        }
+    
+        // 모든 청크를 하나의 Uint8Array로 결합
+        let concatArray = new Uint8Array(loaded);
+        let position = 0;
+        for (let chunk of chunks) {
+            concatArray.set(chunk, position);
+            position += chunk.length;
+        }
+    
+        // 최종 데이터를 처리 (예: 파일 객체로 변환)
+        const finalBlob = new Blob([concatArray]);
+        progressBar.style.display = "none";  // 프로그레스 바 숨김
+        // 파일 처리 로직 수행
+        selectFile(finalBlob)
+    }
+
+    console.log("fetch url: ", url)
+    fetchAndDisplayProgress(url)
+    
+
+    console.log("main is looping?")
 }
 
 main().catch((err) => {
