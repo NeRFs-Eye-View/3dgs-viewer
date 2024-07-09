@@ -738,6 +738,10 @@ let defaultViewMatrix = [
     0.03, 6.55, 1,
 ];
 let viewMatrix = defaultViewMatrix;
+
+let moveSpeed = 1
+let rotateSpeed = 1
+
 async function main() {
     let carousel = true;
     const params = new URLSearchParams(location.search);
@@ -936,6 +940,26 @@ async function main() {
 			currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
 			viewMatrix = getViewMatrix(cameras[currentCameraIndex]);
 		}
+
+        if (e.code === "BracketLeft") {
+            moveSpeed = Math.max(0.1, moveSpeed - 0.1);
+            console.log("Move speed decreased:", moveSpeed);
+        }
+        if (e.code === "BracketRight") {
+            moveSpeed = Math.min(5, moveSpeed + 0.1);
+            console.log("Move speed increased:", moveSpeed);
+        }
+    
+        // Rotate speed 조정
+        if (e.code === "Semicolon") {
+            rotateSpeed = Math.max(0.1, rotateSpeed - 0.1);
+            console.log("Rotate speed decreased:", rotateSpeed);
+        }
+        if (e.code === "Quote") {
+            rotateSpeed = Math.min(5, rotateSpeed + 0.1);
+            console.log("Rotate speed increased:", rotateSpeed);
+        }
+
         camid.innerText = "cam  " + currentCameraIndex;
         if (e.code == "KeyV") {
             location.hash =
@@ -1182,30 +1206,30 @@ async function main() {
 
         if (activeKeys.includes("ArrowUp")) {
             if (shiftKey) {
-                inv = translate4(inv, 0, -0.003, 0);
+                inv = translate4(inv, 0, -0.006*moveSpeed, 0);
             } else {
-                inv = translate4(inv, 0, 0, 0.003);
+                inv = translate4(inv, 0, 0, 0.006*moveSpeed);
             }
         }
         if (activeKeys.includes("ArrowDown")) {
             if (shiftKey) {
-                inv = translate4(inv, 0, 0.003, 0);
+                inv = translate4(inv, 0, 0.006*moveSpeed, 0);
             } else {
-                inv = translate4(inv, 0, 0, -0.003);
+                inv = translate4(inv, 0, 0, -0.006*moveSpeed);
             }
         }
         if (activeKeys.includes("ArrowLeft"))
-            inv = translate4(inv, -0.003, 0, 0);
+            inv = translate4(inv, -0.006*moveSpeed, 0, 0);
         //
         if (activeKeys.includes("ArrowRight"))
-            inv = translate4(inv, 0.003, 0, 0);
+            inv = translate4(inv, 0.006*moveSpeed, 0, 0);
         // inv = rotate4(inv, 0.01, 0, 1, 0);
-        if (activeKeys.includes("KeyA")) inv = rotate4(inv, -0.003, 0, 1, 0);
-        if (activeKeys.includes("KeyD")) inv = rotate4(inv, 0.003, 0, 1, 0);
-        if (activeKeys.includes("KeyQ")) inv = rotate4(inv, 0.003, 0, 0, 1);
-        if (activeKeys.includes("KeyE")) inv = rotate4(inv, -0.003, 0, 0, 1);
-        if (activeKeys.includes("KeyW")) inv = rotate4(inv, 0.003, 1, 0, 0);
-        if (activeKeys.includes("KeyS")) inv = rotate4(inv, -0.003, 1, 0, 0);
+        if (activeKeys.includes("KeyA")) inv = rotate4(inv, -0.01*rotateSpeed, 0, 1, 0);
+        if (activeKeys.includes("KeyD")) inv = rotate4(inv, 0.01*rotateSpeed, 0, 1, 0);
+        if (activeKeys.includes("KeyQ")) inv = rotate4(inv, 0.01*rotateSpeed, 0, 0, 1);
+        if (activeKeys.includes("KeyE")) inv = rotate4(inv, -0.01*rotateSpeed, 0, 0, 1);
+        if (activeKeys.includes("KeyW")) inv = rotate4(inv, 0.01*rotateSpeed, 1, 0, 0);
+        if (activeKeys.includes("KeyS")) inv = rotate4(inv, -0.01*rotateSpeed, 1, 0, 0);
 
         const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
         let isJumping = activeKeys.includes("Space");
