@@ -742,6 +742,12 @@ let viewMatrix = defaultViewMatrix;
 let moveSpeed = 1
 let rotateSpeed = 1
 
+const speedinfo = document.getElementById("speedinfo");
+
+function updateSpeedInfo() {
+    speedinfo.innerText = `Move: ${moveSpeed.toFixed(1)} | Rotate: ${rotateSpeed.toFixed(1)}`;
+}
+
 async function main() {
     let carousel = true;
     const params = new URLSearchParams(location.search);
@@ -943,21 +949,21 @@ async function main() {
 
         if (e.code === "BracketLeft") {
             moveSpeed = Math.max(0.1, moveSpeed - 0.1);
-            console.log("Move speed decreased:", moveSpeed);
+            updateSpeedInfo();
         }
         if (e.code === "BracketRight") {
             moveSpeed = Math.min(5, moveSpeed + 0.1);
-            console.log("Move speed increased:", moveSpeed);
+            updateSpeedInfo();
         }
     
         // Rotate speed 조정
         if (e.code === "Semicolon") {
             rotateSpeed = Math.max(0.1, rotateSpeed - 0.1);
-            console.log("Rotate speed decreased:", rotateSpeed);
+            updateSpeedInfo();
         }
         if (e.code === "Quote") {
             rotateSpeed = Math.min(5, rotateSpeed + 0.1);
-            console.log("Rotate speed increased:", rotateSpeed);
+            updateSpeedInfo();
         }
 
         camid.innerText = "cam  " + currentCameraIndex;
@@ -1499,7 +1505,8 @@ async function main() {
             window.isFetchingFile = false; // 다운로드 종료
         }
     }
-        
+    updateSpeedInfo();
+    
     console.log("fetch url: ", url)
     fetchAndDisplayProgress(url)
     
