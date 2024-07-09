@@ -505,7 +505,6 @@ function createWorker(self) {
             offsets[name] = row_offset;
             row_offset += parseInt(arrayType.replace(/[^\d]/g, "")) / 8;
         }
-        console.log("Bytes per row", row_offset, types, offsets);
 
         let dataView = new DataView(
             inputBuffer,
@@ -647,7 +646,6 @@ function createWorker(self) {
             buffer = e.data.buffer;
             vertexCount = e.data.vertexCount;
         } else if (e.data.vertexCount) {
-            console.log("e.data.vertexCount: Who call it?")
             vertexCount = e.data.vertexCount;
         } else if (e.data.view) {
             viewProj = e.data.view;
@@ -757,7 +755,6 @@ async function main() {
         mode: "cors", // no-cors, *cors, same-origin
         credentials: "omit", // include, *same-origin, omit
     });
-    console.log(req);
     if (req.status != 200)
         throw new Error(req.status + " Unable to load " + req.url);
 
@@ -1179,9 +1176,6 @@ async function main() {
     });
 
     let leftGamepadTrigger, rightGamepadTrigger;
-
-    console.log("1184 LINE")
-
     const frame = (now) => {
         let inv = invert4(viewMatrix);
         let shiftKey = activeKeys.includes("Shift") || activeKeys.includes("ShiftLeft") || activeKeys.includes("ShiftRight")
@@ -1190,14 +1184,14 @@ async function main() {
             if (shiftKey) {
                 inv = translate4(inv, 0, -0.003, 0);
             } else {
-                inv = translate4(inv, 0, 0, 0.01);
+                inv = translate4(inv, 0, 0, 0.003);
             }
         }
         if (activeKeys.includes("ArrowDown")) {
             if (shiftKey) {
                 inv = translate4(inv, 0, 0.003, 0);
             } else {
-                inv = translate4(inv, 0, 0, -0.01);
+                inv = translate4(inv, 0, 0, -0.003);
             }
         }
         if (activeKeys.includes("ArrowLeft"))
@@ -1206,12 +1200,12 @@ async function main() {
         if (activeKeys.includes("ArrowRight"))
             inv = translate4(inv, 0.003, 0, 0);
         // inv = rotate4(inv, 0.01, 0, 1, 0);
-        if (activeKeys.includes("KeyA")) inv = rotate4(inv, -0.01, 0, 1, 0);
-        if (activeKeys.includes("KeyD")) inv = rotate4(inv, 0.01, 0, 1, 0);
-        if (activeKeys.includes("KeyQ")) inv = rotate4(inv, 0.01, 0, 0, 1);
-        if (activeKeys.includes("KeyE")) inv = rotate4(inv, -0.01, 0, 0, 1);
-        if (activeKeys.includes("KeyW")) inv = rotate4(inv, 0.005, 1, 0, 0);
-        if (activeKeys.includes("KeyS")) inv = rotate4(inv, -0.005, 1, 0, 0);
+        if (activeKeys.includes("KeyA")) inv = rotate4(inv, -0.003, 0, 1, 0);
+        if (activeKeys.includes("KeyD")) inv = rotate4(inv, 0.003, 0, 1, 0);
+        if (activeKeys.includes("KeyQ")) inv = rotate4(inv, 0.003, 0, 0, 1);
+        if (activeKeys.includes("KeyE")) inv = rotate4(inv, -0.003, 0, 0, 1);
+        if (activeKeys.includes("KeyW")) inv = rotate4(inv, 0.003, 1, 0, 0);
+        if (activeKeys.includes("KeyS")) inv = rotate4(inv, -0.003, 1, 0, 0);
 
         const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
         let isJumping = activeKeys.includes("Space");
@@ -1386,8 +1380,6 @@ async function main() {
                 // fr.result 안에 읽힌 파일의 데이터가 ArrayBuffer 형태로 들어가있음.
                 splatData = new Uint8Array(fr.result); // ArrayBuffer를 byte단위로 접근 가능.
                 console.log("Loaded", Math.floor(splatData.length / rowLength));
-                console.log("Remain?: ", splatData.length)
-
                 if (
                     splatData[0] == 112 &&
                     splatData[1] == 108 &&
@@ -1410,8 +1402,6 @@ async function main() {
             fr.readAsArrayBuffer(file);
         }
     };
-
-    console.log("after selectFile()")
 
     window.addEventListener("hashchange", (e) => {
         try {
