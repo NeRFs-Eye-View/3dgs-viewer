@@ -1230,12 +1230,12 @@ async function main() {
         if (activeKeys.includes("ArrowRight"))
             inv = translate4(inv, 0.006*moveSpeed, 0, 0);
         // inv = rotate4(inv, 0.01, 0, 1, 0);
-        if (activeKeys.includes("KeyA")) inv = rotate4(inv, -0.01*rotateSpeed, 0, 1, 0);
-        if (activeKeys.includes("KeyD")) inv = rotate4(inv, 0.01*rotateSpeed, 0, 1, 0);
-        if (activeKeys.includes("KeyQ")) inv = rotate4(inv, 0.01*rotateSpeed, 0, 0, 1);
-        if (activeKeys.includes("KeyE")) inv = rotate4(inv, -0.01*rotateSpeed, 0, 0, 1);
-        if (activeKeys.includes("KeyW")) inv = rotate4(inv, 0.01*rotateSpeed, 1, 0, 0);
-        if (activeKeys.includes("KeyS")) inv = rotate4(inv, -0.01*rotateSpeed, 1, 0, 0);
+        if (activeKeys.includes("KeyA")) inv = rotate4(inv, -0.007*rotateSpeed, 0, 1, 0);
+        if (activeKeys.includes("KeyD")) inv = rotate4(inv, 0.007*rotateSpeed, 0, 1, 0);
+        if (activeKeys.includes("KeyQ")) inv = rotate4(inv, 0.007*rotateSpeed, 0, 0, 1);
+        if (activeKeys.includes("KeyE")) inv = rotate4(inv, -0.007*rotateSpeed, 0, 0, 1);
+        if (activeKeys.includes("KeyW")) inv = rotate4(inv, 0.007*rotateSpeed, 1, 0, 0);
+        if (activeKeys.includes("KeyS")) inv = rotate4(inv, -0.007*rotateSpeed, 1, 0, 0);
 
         const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
         let isJumping = activeKeys.includes("Space");
@@ -1309,9 +1309,9 @@ async function main() {
             inv = rotate4(
                 inv,
                 activeKeys.includes("KeyJ")
-                    ? -0.05
+                    ? -0.007 * rotateSpeed
                     : activeKeys.includes("KeyL")
-                    ? 0.05
+                    ? 0.007 * rotateSpeed
                     : 0,
                 0,
                 1,
@@ -1320,9 +1320,9 @@ async function main() {
             inv = rotate4(
                 inv,
                 activeKeys.includes("KeyI")
-                    ? 0.05
+                    ? 0.007 * rotateSpeed
                     : activeKeys.includes("KeyK")
-                    ? -0.05
+                    ? -0.007 * rotateSpeed
                     : 0,
                 1,
                 0,
