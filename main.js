@@ -741,11 +741,13 @@ let viewMatrix = defaultViewMatrix;
 
 let moveSpeed = 1
 let rotateSpeed = 1
+let fov = 45;  // 초기 FOV 값 (도 단위)
+let carouselRadius = 2.5;  // 초기 회전 반경
 
 const speedinfo = document.getElementById("speedinfo");
 
 function updateSpeedInfo() {
-    speedinfo.innerText = `Move: ${moveSpeed.toFixed(1)} | Rotate: ${rotateSpeed.toFixed(1)}`;
+    speedinfo.innerText = `Move: ${moveSpeed.toFixed(1)} | Rotate: ${rotateSpeed.toFixed(1)} | Carousel Radius: ${carouselRadius.toFixed(1)} | FOV: ${fov.toFixed(1)}°`;
 }
 
 async function main() {
@@ -854,24 +856,38 @@ async function main() {
     gl.bindBuffer(gl.ARRAY_BUFFER, indexBuffer);
     gl.vertexAttribIPointer(a_index, 1, gl.INT, false, 0, 0);
     gl.vertexAttribDivisor(a_index, 1);
+    
+    function updateProjectionMatrix() {
+        // const aspect = gl.canvas.width / gl.canvas.height;
+        const focalLength = gl.canvas.height / (2 * Math.tan(fov * Math.PI / 360));
+        camera.fx = camera.fy = focalLength;
+        projectionMatrix = getProjectionMatrix(camera.fx, camera.fy, gl.canvas.width, gl.canvas.height);
+        gl.uniformMatrix4fv(u_projection, false, projectionMatrix);
+        gl.uniform2fv(u_focal, new Float32Array([camera.fx, camera.fy]));
+    }
 
     const resize = () => {
-        gl.uniform2fv(u_focal, new Float32Array([camera.fx, camera.fy]));
+        // gl.uniform2fv(u_focal, new Float32Array([camera.fx, camera.fy]));
 
-        projectionMatrix = getProjectionMatrix(
-            camera.fx,
-            camera.fy,
-            innerWidth,
-            innerHeight,
-        );
+        // projectionMatrix = getProjectionMatrix(
+        //     camera.fx,
+        //     camera.fy,
+        //     innerWidth,
+        //     innerHeight,
+        // );
 
-        gl.uniform2fv(u_viewport, new Float32Array([innerWidth, innerHeight]));
+        // gl.uniform2fv(u_viewport, new Float32Array([innerWidth, innerHeight]));
 
+        // gl.canvas.width = Math.round(innerWidth / downsample);
+        // gl.canvas.height = Math.round(innerHeight / downsample);
+        // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+        // gl.uniformMatrix4fv(u_projection, false, projectionMatrix);
         gl.canvas.width = Math.round(innerWidth / downsample);
         gl.canvas.height = Math.round(innerHeight / downsample);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-        gl.uniformMatrix4fv(u_projection, false, projectionMatrix);
+        updateProjectionMatrix();
+        gl.uniform2fv(u_viewport, new Float32Array([innerWidth, innerHeight]));
     };
 
     window.addEventListener("resize", resize);
@@ -963,6 +979,26 @@ async function main() {
         }
         if (e.code === "Quote") {
             rotateSpeed = Math.min(5, rotateSpeed + 0.1);
+            updateSpeedInfo();
+        }
+
+        if (e.code === "BracketLeft" && e.shiftKey) {  // '{' 키로 FOV 감소 (시야각 좁아짐)
+            fov = Math.max(10, fov - 5);
+            updateProjectionMatrix();
+            updateSpeedInfo();
+        }
+        if (e.code === "BracketRight" && e.shiftKey) {  // '}' 키로 FOV 증가 (시야각 넓어짐)
+            fov = Math.min(120, fov + 5);
+            updateProjectionMatrix();
+            updateSpeedInfo();
+        }
+
+        if (e.code === "Comma") {  // ',' 키로 반경 감소
+            carouselRadius = Math.max(0.5, carouselRadius - 0.1);
+            updateSpeedInfo();
+        }
+        if (e.code === "Period") {  // '.' 키로 반경 증가
+            carouselRadius = Math.min(10, carouselRadius + 0.1);
             updateSpeedInfo();
         }
 
@@ -1333,13 +1369,22 @@ async function main() {
 
         viewMatrix = invert4(inv);
 
+        // if (carousel) {
+        //     let inv = invert4(defaultViewMatrix);
+
+        //     const t = Math.sin((Date.now() - start) / 5000);
+        //     inv = translate4(inv, 2.5 * t, 0, 6 * (1 - Math.cos(t)));
+        //     inv = rotate4(inv, -0.6 * t, 0, 1, 0);
+
+        //     viewMatrix = invert4(inv);
+        // }
         if (carousel) {
             let inv = invert4(defaultViewMatrix);
-
+        
             const t = Math.sin((Date.now() - start) / 5000);
-            inv = translate4(inv, 2.5 * t, 0, 6 * (1 - Math.cos(t)));
+            inv = translate4(inv, carouselRadius * t, 0, carouselRadius * 2 * (1 - Math.cos(t)));
             inv = rotate4(inv, -0.6 * t, 0, 1, 0);
-
+        
             viewMatrix = invert4(inv);
         }
 
