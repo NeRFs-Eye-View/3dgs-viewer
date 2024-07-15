@@ -1,3 +1,9 @@
+# Link for Examples
+
+1. [https://nerfs-eye-view.github.io/3dgs-viewer/?url=konkuk_library.ply](https://nerfs-eye-view.github.io/3dgs-viewer/?url=konkuk_library.ply)
+2. [https://nerfs-eye-view.github.io/3dgs-viewer/?url=church.ply](https://nerfs-eye-view.github.io/3dgs-viewer/?url=church.ply)
+
+
 # splat
 
 This is a WebGL implementation of a real-time renderer for [3D Gaussian Splatting for Real-Time Radiance Field Rendering](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/), a recently developed technique for taking a set of pictures and generating a photorealistic navigable 3D scene out of it. As it is essentially an extension of rendering point clouds, rendering scenes generated with this technique can be done very efficiently on ordinary graphics hardware- unlike prior comparable techniques such as NeRFs.
