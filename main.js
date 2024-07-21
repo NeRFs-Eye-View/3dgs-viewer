@@ -734,8 +734,8 @@ void main () {
 `.trim();
 
 let defaultViewMatrix = [
-    0.47, 0.04, 0.88, 0, -0.11, 0.99, 0.02, 0, -0.88, -0.11, 0.47, 0, 0.07,
-    0.03, 6.55, 1,
+    0.47, 0.04, 0.88, 0, -0.11, 0.99, 0.02, 0, -0.88, -0.11, 0.47, 0, -3.3548356345057857,
+    -0.052770094215270895, 2.06058849343718, 1,
 ];
 let viewMatrix = defaultViewMatrix;
 
@@ -1428,15 +1428,22 @@ async function main() {
         if (isNaN(currentCameraIndex)){
             camid.innerText = "";
         }
-        lastFrame = now;
-
         if (now - lastLogTime > logInterval) {
             const cameraPosition = [
                 actualViewMatrix[12],
                 actualViewMatrix[13],
                 actualViewMatrix[14]
             ];
+            
+            const rotationMatrix = [
+                [actualViewMatrix[0], actualViewMatrix[1], actualViewMatrix[2]],
+                [actualViewMatrix[4], actualViewMatrix[5], actualViewMatrix[6]],
+                [actualViewMatrix[8], actualViewMatrix[9], actualViewMatrix[10]]
+            ];
+    
             console.log("Camera position:", cameraPosition);
+            console.log("Rotation matrix:", rotationMatrix);
+            
             lastLogTime = now;
         }
 
