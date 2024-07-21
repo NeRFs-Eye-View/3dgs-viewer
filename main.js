@@ -750,6 +750,9 @@ function updateSpeedInfo() {
     speedinfo.innerText = `Move: ${moveSpeed.toFixed(1)} | Rotate: ${rotateSpeed.toFixed(1)} | Carousel Radius: ${carouselRadius.toFixed(1)} | FOV: ${fov.toFixed(1)}°`;
 }
 
+let lastLogTime = 0;
+const logInterval = 1000; // 1초마다 로그 출력
+
 async function main() {
     let carousel = true;
     const params = new URLSearchParams(location.search);
@@ -1426,6 +1429,17 @@ async function main() {
             camid.innerText = "";
         }
         lastFrame = now;
+
+        if (now - lastLogTime > logInterval) {
+            const cameraPosition = [
+                actualViewMatrix[12],
+                actualViewMatrix[13],
+                actualViewMatrix[14]
+            ];
+            console.log("Camera position:", cameraPosition);
+            lastLogTime = now;
+        }
+
         requestAnimationFrame(frame);
     };
 
