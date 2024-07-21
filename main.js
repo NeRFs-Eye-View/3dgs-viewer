@@ -734,8 +734,10 @@ void main () {
 `.trim();
 
 let defaultViewMatrix = [
-    0.47, 0.04, 0.88, 0, -0.11, 0.99, 0.02, 0, -0.88, -0.11, 0.47, 0, -3.3548356345057857,
-    -0.052770094215270895, 2.06058849343718, 1,
+    -0.9922432382896983, 0.04535118106430371, -0.09138687874159945, 0,
+    0.01557787213627798, 0.9416629175557698, 0.3289764526547881, 0,
+    0.1068654326486841, 0.3218479718836901, -0.9443206554639786, 0,
+    1.125258961823709, -0.1617714440007440, 2.775137172216381, 1
 ];
 let viewMatrix = defaultViewMatrix;
 
@@ -754,7 +756,7 @@ let lastLogTime = 0;
 const logInterval = 1000; // 1초마다 로그 출력
 
 async function main() {
-    let carousel = true;
+    let carousel = false;
     const params = new URLSearchParams(location.search);
     try {
         viewMatrix = JSON.parse(decodeURIComponent(location.hash.slice(1)));
