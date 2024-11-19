@@ -27,12 +27,12 @@ camera angle (wasd)
 - `q`/`e` to roll camera counterclockwise/clockwise
 - `i`/`k` and `j`/`l` to orbit
 
-camera velocity (Added)
+camera velocity **(Added)**
 
 - `[`/`]`: decrease/increase the speed of camera movements
 - `;`/`'`: decrease/increase the angular speed of camera rotations
 
-FOV control (Added)
+FOV control **(Added)**
 
 - shift + `[`/`]`: decrease/increase the FOV
 
