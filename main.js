@@ -973,7 +973,7 @@ async function main() {
             updateSpeedInfo();
         }
         if (e.code === "BracketRight") {
-            moveSpeed = Math.min(5, moveSpeed + 0.1);
+            moveSpeed = Math.min(30, moveSpeed + 0.1);
             updateSpeedInfo();
         }
     
