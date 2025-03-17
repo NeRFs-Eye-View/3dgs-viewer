@@ -1,3 +1,4 @@
+let camera;
 let cameras = [
     {
         id: 0,
@@ -155,7 +156,7 @@ let cameras = [
     },
 ];
 
-let camera = cameras[0];
+camera = cameras[0];
 
 function getProjectionMatrix(fx, fy, width, height) {
     const znear = 0.2;
@@ -169,6 +170,11 @@ function getProjectionMatrix(fx, fy, width, height) {
 }
 
 function getViewMatrix(camera) {
+    if (!camera) {
+        console.error("Cannot get view matrix: camera is undefined");
+        return defaultViewMatrix;
+    }
+
     const R = camera.rotation.flat();
     const t = camera.position;
     const camToWorld = [
@@ -753,7 +759,7 @@ function updateSpeedInfo() {
 }
 
 let lastLogTime = 0;
-const logInterval = 1000; // 1초마다 로그 출력
+const logInterval = 1000 // 10초마다 로그 출력
 
 async function main() {
     let carousel = false;
@@ -863,6 +869,13 @@ async function main() {
     gl.vertexAttribDivisor(a_index, 1);
     
     function updateProjectionMatrix() {
+        // check the 'camera' is undefined
+        if (!camera) {
+            console.warn("Camera is not initialized yet!");
+            camera = cameras[0];
+            if (!camera) return;
+        }
+
         // const aspect = gl.canvas.width / gl.canvas.height;
         const focalLength = gl.canvas.height / (2 * Math.tan(fov * Math.PI / 360));
         camera.fx = camera.fy = focalLength;
@@ -973,7 +986,7 @@ async function main() {
             updateSpeedInfo();
         }
         if (e.code === "BracketRight") {
-            moveSpeed = Math.min(5, moveSpeed + 0.1);
+            moveSpeed = Math.min(30, moveSpeed + 0.1);
             updateSpeedInfo();
         }
     
